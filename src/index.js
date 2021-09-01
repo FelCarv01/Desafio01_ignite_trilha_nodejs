@@ -52,7 +52,7 @@ app.post("/todos", checksExistsUserAccount, (request, response) => {
     id: uuidv4(),
     title,
     done: false,
-    deadline: new Date(deadline),
+    deadline: new Date(deadline).toISOString(),
     created_at: new Date(),
   };
 
@@ -61,7 +61,20 @@ app.post("/todos", checksExistsUserAccount, (request, response) => {
 });
 
 app.put("/todos/:id", checksExistsUserAccount, (request, response) => {
-  // Complete aqui
+  const { title, deadline } = request.body;
+  const { user } = request;
+  const { todoId } = request.params;
+
+  const todo = user.todos.find((todo) => todo.id === todoId);
+
+  if (!todo) {
+    return response.status(404).json({ error: "TODO not found!" });
+  }
+
+  todo.title = title;
+  todo.deadline = new Date(deadline).toISOString();
+
+  return response.json(todo);
 });
 
 app.patch("/todos/:id/done", checksExistsUserAccount, (request, response) => {
